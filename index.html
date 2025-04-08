@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,33 +9,43 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 100px;
             background-color: #121212;
             color: #ffffff;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
             text-align: center;
         }
-        input, button, table {
+
+        button {
+            cursor: pointer;
+        }
+
+        input,
+        button,
+        table {
             background-color: #1e1e1e;
             color: #ffffff;
             border: 1px solid #444;
             padding: 8px;
             margin: 5px;
         }
+
         table {
             margin-top: 20px;
             border-collapse: collapse;
             width: 80%;
         }
-        th, td {
+
+        th,
+        td {
             padding: 10px;
             text-align: center;
             border: 1px solid #444;
         }
+
         .modal {
             display: none;
             position: fixed;
@@ -50,6 +61,7 @@
             width: 300px;
             max-width: 90%;
         }
+
         .modal button.close {
             position: absolute;
             top: 5px;
@@ -60,6 +72,7 @@
             font-size: 20px;
             cursor: pointer;
         }
+
         .overlay {
             display: none;
             position: fixed;
@@ -70,6 +83,7 @@
             background: rgba(0, 0, 0, 0.7);
             z-index: 999;
         }
+
         section {
             width: 100%;
             max-width: 600px;
@@ -77,13 +91,42 @@
             flex-direction: column;
             align-items: center;
         }
+
+        .status-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #1e1e1e;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: none;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            z-index: 2000;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        /* Success */
+        .status-toast.success {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+
+        /* Error */
+        .status-toast.error {
+            background-color: #e74c3c;
+            color: #fff;
+        }
     </style>
 </head>
+
 <body>
-    
+    <div class="status-toast" id="status_msg">success</div>
+
     <!-- Search Box -->
     <input type="text" id="search" placeholder="Search...">
-    
+
     <!-- Form Section -->
     <section>
         <form>
@@ -93,7 +136,7 @@
             <button type="submit">Submit</button>
         </form>
     </section>
-    
+
     <!-- Table Section -->
     <section>
         <table>
@@ -103,37 +146,14 @@
                     <th>Name</th>
                     <th>Age</th>
                     <th>City</th>
+                    <th>action</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>John Doe</td>
-                    <td>28</td>
-                    <td>New York</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Jane Smith</td>
-                    <td>34</td>
-                    <td>Los Angeles</td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>Michael Brown</td>
-                    <td>22</td>
-                    <td>Chicago</td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td>Emily Johnson</td>
-                    <td>29</td>
-                    <td>Houston</td>
-                </tr>
+            <tbody id="user_data">
             </tbody>
         </table>
     </section>
-    
+
     <!-- Modal -->
     <div class="overlay" id="overlay"></div>
     <div class="modal" id="modal">
@@ -145,5 +165,49 @@
             <button type="submit">Submit</button>
         </form>
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+
+            function loadTable() {
+                $.ajax({
+                    url: "php/get_all_data.php",
+                    type: "GET",
+                    dataType: "JSON",
+                    success: function (data) {
+
+                        $("#user_data").html("");
+
+                        if (data.status == false) {
+                            $("#user_data").append("<tr>" + "<td colspan='4'>" + data.message + "</td>" + "</tr>");
+                        }
+                        else {
+                            $.each(data, function (key, value) {
+                                $("#user_data").append(
+                                    "<tr>" +
+                                    "<td>" + value.id + "</td>" +
+                                    "<td>" + value.name + "</td>" +
+                                    "<td>" + value.age + "</td>" +
+                                    "<td>" + value.city + "</td>" +
+                                    "<td colspan='2'>" +
+                                    "<button class='.edit-btn'> edit </button>" +
+                                    "<button> class='.delete-btn'> delete </button>" +
+                                    "</td>" +
+                                    "</tr>");
+                            })
+                        }
+
+                    }
+                })
+            }
+
+            loadTable();
+
+        })
+
+    </script>
+
 </body>
+
 </html>

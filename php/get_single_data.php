@@ -5,8 +5,7 @@ header("Access-control-allow-origin: *");
 
 include("../config.php");
 
-$user_id = json_decode(file_get_contents("Php://input"), true);
-$id = $user_id['id'];
+$id = isset($_GET['id']) ? $_GET['id'] : die("no id is set");
 
 $sql = "select * from crud where id = '$id'";
 

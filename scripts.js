@@ -131,4 +131,104 @@ $(document).ready(function () {
       },
     });
   });
+
+  // create data
+  $("#user_form").on("submit", function (e) {
+    e.preventDefault();
+
+    let json_data = formdata_to_json("#user_form");
+
+    $.ajax({
+      url: "php/create_data.php",
+      method: "POST",
+      dataType: "JSON",
+      data: json_data,
+      success: function (data) {
+        $("#user_form").trigger("reset");
+        loadTable();
+        statusToast(data.status, data.message);
+      },
+      error: function (xhr) {
+        console.log(xhr.responseText);
+      },
+    });
+  });
+
+  // delete data
+  $(document).on("click", ".delete-btn", function () {
+    let uid = $(this).data("id");
+
+    let obj = { id: uid };
+    let json_obj = JSON.stringify(obj);
+
+    let row = $(this).closest("tr");
+
+    $.ajax({
+      url: "php/delete_data.php",
+      method: "POST",
+      dataType: "JSON",
+      data: json_obj,
+      success: function (data) {
+        statusToast(data.status, data.message);
+
+        if (data.status == true) {
+          row.hide();
+        }
+      },
+      error: function (xhr) {
+        console.log(xhr.responseText);
+      },
+    });
+  });
+
+  // search data
+  $("#search").keyup(function () {
+    let search_value = $("#search").val();
+
+    console.log(search_value);
+    $.ajax({
+      url: "php/search_data.php?search=" + search_value,
+      method: "GET",
+      dataType: "JSON",
+      success: function (data) {
+        $("#user_data").html("");
+
+        if (data.status == false) {
+          $("#user_data").append(
+            "<tr>" + "<td colspan='4'>" + data.message + "</td>" + "</tr>"
+          );
+        } else {
+          $.each(data, function (key, value) {
+            $("#user_data").append(
+              "<tr>" +
+                "<td>" +
+                value.id +
+                "</td>" +
+                "<td>" +
+                value.name +
+                "</td>" +
+                "<td>" +
+                value.age +
+                "</td>" +
+                "<td>" +
+                value.city +
+                "</td>" +
+                "<td colspan='2'>" +
+                "<button class='edit-btn' data-id='" +
+                value.id +
+                "'> edit </button>" +
+                "<button class='delete-btn' data-id='" +
+                value.id +
+                "'> delete </button>" +
+                "</td>" +
+                "</tr>"
+            );
+          });
+        }
+      },
+      error: function (xhr) {
+        console.log(xhr.responseText);
+      },
+    });
+  });
 });
